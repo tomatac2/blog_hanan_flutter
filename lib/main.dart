@@ -1,4 +1,5 @@
 import 'package:blog_hanan/pages/homepage.dart';
+//import 'package:blog_hanan/copy/pages/home.dart';
 import 'package:blog_hanan/pages/test.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home:  Homepage()
+      home: Homepage()
     );
   }
 }

@@ -1,28 +1,39 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import '../models/home_model.dart';
+import 'package:blog_hanan/elements/globals.dart' as globals;
 
 class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+  final dynamic catID ;
+  const Homepage({Key? key , this.catID}) : super(key: key);
 
   @override
   State<Homepage> createState() => _HomepageState();
 }
 
 class _HomepageState extends State<Homepage> {
+
+  List<Category> categories = [];
+  List<Article> articles = [];
+  int page = 1 ;
+  int end = 5 ;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    apiHome(1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Homepage"),),
       body: Container(
-        child: ListView(
+        child: Column(
           children: [
             _slider(),
-            _articles(),
-            _articles(),
-            _articles(),
-            _articles(),
-            _articles(),
-
+            articles.isEmpty  ? const Center(child: CircularProgressIndicator()  ) :  _articles(),
           ],
         ),
       ),
@@ -30,52 +41,79 @@ class _HomepageState extends State<Homepage> {
   }
 
   _articles(){
-    return Column(
-        children: [
-          Text(
-            "Design Unique Promotional Items HTML Templat",
-            style: TextStyle(fontWeight: FontWeight.w600 , fontSize: 18 ),
-            textAlign: TextAlign.center,
-          ),
-          Image.network(
-            "https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=820&q=80",
-            height: 300,
-          ) ,
-          _statisticArticle() ,
-          _articleBody()
+    return
+    Expanded(child:
+    ListView.builder(
+      itemCount: end,
+      itemBuilder: (context, index) {
+
+        int keyy = index ;
+        keyy ++ ;
+
+        double eqution = keyy/5 ;
+        RegExp regx = RegExp(r'([.]*0)(?!.*\d)');
+        String eqution2String = eqution.toString().replaceAll(regx, '');
+
+        if(int.tryParse(eqution2String) is int){
+          page++;
+          apiHome(page);
+        }
+        print("eqution $eqution");
+        return
+          Column(
+            children: [
+              Text(
+                "${articles[index].subject}",
+                style: TextStyle(fontWeight: FontWeight.w600 , fontSize: 18 ),
+                textAlign: TextAlign.center,
+              ),
+              Image.network(
+                "${ globals.URL+articles[index].photo}",
+                width: MediaQuery.of(context).size.width * .95,
+                height: 300,
+                fit: BoxFit.fill,
+              ) ,
+              _statisticArticle(index) ,
+              _articleBody(index)
+
+
+            ],
+          );
+      },
+    )
+    )
+    ;
 
 
 
 
-        ],
-    );
   }
 
-  _articleBody(){
+  _articleBody(index){
     return Container(
       margin: EdgeInsets.only(left: 10 , right: 10),
       padding: EdgeInsets.all(10),
       child:
       Text(
-        "Design Unique Promotional Items HTML Templat When using HTML Builder you will be able to adjust colors, fonts, header and fooer, layout, columns and other design elements, as well as content and image When using HTML Builder you will be able to adjust colors, fonts, header and fooer, layout, columns and other design elements, as well as content and image When using HTML Builder you will be able to adjust colors, fonts, header and fooer, layout, columns and other design elements, as well as content and image",
+        "${articles[index].shortDesc}",
         style: TextStyle(fontSize: 14 ),
         textAlign: TextAlign.justify,
       ),
     );
   }
-  _statisticArticle(){
+  _statisticArticle(index){
     return  Container(
       margin: EdgeInsets.only(left: 10 , right: 10),
       child:  Row(
         children: [
           Text(
-            "Category: News",
+            "Category: ${articles[index].category.name}",
             style: TextStyle(fontWeight: FontWeight.w600 , fontSize: 14 ),
             textAlign: TextAlign.center,
           ),
           Spacer(),
           Text(
-            "Viewers: 500",
+            "Viewers: ${articles[index].viewersCount}",
             style: TextStyle(fontWeight: FontWeight.w600 , fontSize: 14 ),
             textAlign: TextAlign.center,
           ),
@@ -89,11 +127,11 @@ class _HomepageState extends State<Homepage> {
           options: CarouselOptions(
             height: 120,
             aspectRatio: 16/9,
-            viewportFraction: 0.4,
+            viewportFraction: 0.35,
             initialPage: 0,
             enableInfiniteScroll: true,
             reverse: false,
-            autoPlay: false,
+            autoPlay: true,
             autoPlayInterval: Duration(seconds: 4),
             autoPlayAnimationDuration: Duration(seconds: 2),
             autoPlayCurve: Curves.fastOutSlowIn,
@@ -101,7 +139,7 @@ class _HomepageState extends State<Homepage> {
             onPageChanged: null,
             scrollDirection: Axis.horizontal,
           ),
-        items: [1,2,3,4,5].map((i) {
+        items: categories.map((i) {
           return Builder(
             builder: (BuildContext context) {
               return Container(
@@ -110,8 +148,18 @@ class _HomepageState extends State<Homepage> {
                   padding: EdgeInsets.symmetric(horizontal: 5.0),
                   child: Column(
                     children: [
-                      Image.asset("assets/icons/3034595.png" , height: 70 , fit: BoxFit.fill,),
-                      Text('News', style: TextStyle(fontSize: 16.0),)
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context)=> Homepage(catID: "${i.id}"))
+                          );
+                          print("${i.name}"); }, // Image tapped
+                        child:
+                        Image.network("${globals.URL + i.photo}" , height: 70 , fit: BoxFit.fill,),
+                      ),
+                      Text('${i.name}', style: TextStyle(fontSize: 16.0),)
                     ],
                   )
               );
@@ -122,4 +170,23 @@ class _HomepageState extends State<Homepage> {
      ;
 
   }
+  /////////////////////
+
+  Future apiHome (page) async{
+      final Uri url = Uri.parse("${globals.URL}api/home?page=$page&catID=${widget.catID ?? 0}");
+
+      final response =  await http.get(url);
+      if(response.statusCode == 200){
+        final finalReponse = homeModelFromJson(response.body) ;
+        categories.addAll(finalReponse.blog.data.categories);
+        articles.addAll(finalReponse.blog.data.articles);
+        end = finalReponse.blog.pagination.end ;
+
+       // print(finalReponse);
+        setState(() {});
+      }
+  }
+
+
+
 }
