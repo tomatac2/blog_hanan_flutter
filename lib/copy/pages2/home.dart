@@ -6,7 +6,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:blog_hanan/copy/elements/globals.dart' as globals;
 
-import '../elements/drawer_class.dart';
+//import '../elements/drawer_class.dart';
+
+//copy2
+import 'package:blog_hanan/copy/elements/drawer.dart';
 
 class Home extends StatefulWidget {
 
@@ -28,19 +31,16 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
-   // _createTokenFromStorage();
-    _readTokenFromStorage();
     homeApi(page);
+    readStore();
   }
 
   @override
   Widget build(BuildContext context) {
-    final storage = new FlutterSecureStorage();
-
 
     print("Token is Storeage ${globals.Token}");
     return Scaffold(
-      drawer: drawerClass(),
+      drawer: DrawerClass2(),
       appBar: AppBar(title: Text("Homepage"),),
       body:
         Column(
@@ -205,6 +205,16 @@ class _HomeState extends State<Home> {
       countPages = getResult.blog.pagination.end;
       setState(() {});
     }
+  }
+
+
+  readStore() async {
+    // Create storage
+    final storage = new FlutterSecureStorage();
+
+// Read value
+    String? tokenFromStorge = await storage.read(key: "Token");
+    globals.Token = tokenFromStorge! ;
   }
 
 }

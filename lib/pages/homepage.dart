@@ -1,5 +1,11 @@
+//copy
+import 'package:blog_hanan/copy/elements/drawer_class.dart';
+import 'package:blog_hanan/elements/drawer.dart';
+import 'package:blog_hanan/pages/article_details.dart';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/home_model.dart';
 import 'package:blog_hanan/elements/globals.dart' as globals;
@@ -23,11 +29,15 @@ class _HomepageState extends State<Homepage> {
     // TODO: implement initState
     super.initState();
     apiHome(1);
+    //ready token from storege
+    _readToken();
   }
 
   @override
   Widget build(BuildContext context) {
+    print("token in public ${globals.Token}");
     return Scaffold(
+      drawer: drawerMenu(),
       appBar: AppBar(title: Text("Homepage"),),
       body: Container(
         child: Column(
@@ -67,12 +77,19 @@ class _HomepageState extends State<Homepage> {
                 style: TextStyle(fontWeight: FontWeight.w600 , fontSize: 18 ),
                 textAlign: TextAlign.center,
               ),
-              Image.network(
-                "${ globals.URL+articles[index].photo}",
-                width: MediaQuery.of(context).size.width * .95,
-                height: 300,
-                fit: BoxFit.fill,
-              ) ,
+              GestureDetector(
+                    onTap: () {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=> ArticleDetails(articleID: "${articles[index].id}" ,) )
+                      );
+                    }, // Image tapped
+                    child: Image.network(
+                      "${ globals.URL+articles[index].photo}",
+                      width: MediaQuery.of(context).size.width * .95,
+                      height: 300,
+                      fit: BoxFit.fill,
+                    )
+              ),
               _statisticArticle(index) ,
               _articleBody(index)
 
@@ -187,6 +204,17 @@ class _HomepageState extends State<Homepage> {
       }
   }
 
+  ///
+///
+///
+  _readToken() async {
+    // Create storage
+    final storage = new FlutterSecureStorage();
 
+// Read value
+    String? value = await storage.read(key: "Token");
+
+    globals.Token = value! ;
+  }
 
 }

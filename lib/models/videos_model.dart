@@ -1,21 +1,21 @@
 // To parse this JSON data, do
 //
-//     final homeModel = homeModelFromJson(jsonString);
+//     final videosModel = videosModelFromJson(jsonString);
 
 import 'dart:convert';
 
-HomeModel homeModelFromJson(String str) => HomeModel.fromJson(json.decode(str));
+VideosModel videosModelFromJson(String str) => VideosModel.fromJson(json.decode(str));
 
-String homeModelToJson(HomeModel data) => json.encode(data.toJson());
+String videosModelToJson(VideosModel data) => json.encode(data.toJson());
 
-class HomeModel {
-  HomeModel({
+class VideosModel {
+  VideosModel({
     required this.blog,
   });
 
   Blog blog;
 
-  factory HomeModel.fromJson(Map<String, dynamic> json) => HomeModel(
+  factory VideosModel.fromJson(Map<String, dynamic> json) => VideosModel(
     blog: Blog.fromJson(json["blog"]),
   );
 
@@ -34,50 +34,30 @@ class Blog {
 
   bool success;
   String msg;
-  Data data;
+  List<Datum> data;
   Pagination pagination;
 
   factory Blog.fromJson(Map<String, dynamic> json) => Blog(
     success: json["success"],
     msg: json["msg"],
-    data: Data.fromJson(json["data"]),
+    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
     pagination: Pagination.fromJson(json["pagination"]),
   );
 
   Map<String, dynamic> toJson() => {
     "success": success,
     "msg": msg,
-    "data": data.toJson(),
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
     "pagination": pagination.toJson(),
   };
 }
 
-class Data {
-  Data({
-    required this.categories,
-    required this.articles,
-  });
-
-  List<Category> categories;
-  List<Article> articles;
-
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-    categories: List<Category>.from(json["categories"].map((x) => Category.fromJson(x))),
-    articles: List<Article>.from(json["articles"].map((x) => Article.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "categories": List<dynamic>.from(categories.map((x) => x.toJson())),
-    "articles": List<dynamic>.from(articles.map((x) => x.toJson())),
-  };
-}
-
-class Article {
-  Article({
+class Datum {
+  Datum({
     required this.id,
     required this.subject,
     required this.viewersCount,
-    required this.photo,
+    required this.viedoLink,
     required this.shortDesc,
     required this.category,
   });
@@ -85,50 +65,46 @@ class Article {
   int id;
   String subject;
   int viewersCount;
-  String photo;
+  String viedoLink;
   String shortDesc;
-  Category category;
+  Categor category;
 
-  factory Article.fromJson(Map<String, dynamic> json) => Article(
+  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     id: json["id"],
     subject: json["subject"],
     viewersCount: json["viewers_count"],
-    photo: json["photo"],
+    viedoLink: json["viedo_link"],
     shortDesc: json["short_desc"],
-    category:  Category.fromJson(json["category"]) ,
+    category: Categor.fromJson(json["category"]),
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "subject": subject,
     "viewers_count": viewersCount,
-    "photo": photo,
+    "viedo_link": viedoLink,
     "short_desc": shortDesc,
     "category": category.toJson(),
   };
 }
 
-class Category {
-  Category({
+class Categor {
+  Categor({
     required this.id,
     required this.name,
-    required this.photo,
   });
 
   int id;
   String name;
-  String photo;
 
-  factory Category.fromJson(Map<String, dynamic> json) => Category(
+  factory Categor.fromJson(Map<String, dynamic> json) => Categor(
     id: json["id"],
     name: json["name"],
-    photo: json["photo"],
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "name": name,
-    "photo": photo,
   };
 }
 
@@ -141,6 +117,7 @@ class Pagination {
   int count;
   int end;
 
+
   factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
     count: json["count"],
     end: json["end"],
@@ -151,3 +128,4 @@ class Pagination {
     "end": end,
   };
 }
+
